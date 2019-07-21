@@ -11,7 +11,6 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +22,7 @@ import com.moneytransfer.verticles.MoneyTransferVerticle;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(VertxUnitRunner.class)
 public class MoneyTransferVerticleTest {
@@ -71,18 +71,46 @@ public class MoneyTransferVerticleTest {
 		client.getNow(PORT, "localhost", "/api/accounts/1", response -> response.bodyHandler(body -> {
 
 			JsonArray jsonArray = body.toJsonArray();
+			assertEquals( HttpResponseStatus.OK.code(), response.statusCode() );
 			assertNotNull(jsonArray);
+			assertTrue(jsonArray.size() == 1);
 			
 			JsonObject account = jsonArray.getJsonObject(0);
 			int accountID = account.getInteger("ID");
 			int userID = account.getInteger("USERID");
 			double balance = account.getDouble("BALANCE");
 			
-			context.assertTrue(jsonArray.size() == 1);
 			assertEquals( 1, accountID);
 			assertEquals( 1, userID );
 			assertEquals( 100.0, balance, 0.0);
-			assertEquals( HttpResponseStatus.OK.code(), response.statusCode() );
+			
+			client.close();
+			async.complete();
+		}));
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testGetUsers(TestContext context) throws Exception {
+		HttpClient client = vertx.createHttpClient();
+		Async async = context.async();
+		client.getNow(PORT, "localhost", "/api/users", response -> response.bodyHandler(body -> {
+
+			JsonArray jsonArray = body.toJsonArray();
+			assertNotNull(jsonArray);
+			assertTrue( jsonArray.size() == 2 );
+			
+			JsonObject account1 = jsonArray.getJsonObject(0);
+			int accountID = account1.getInteger("ID");
+			String name1 = account1.getString("NAME");
+			assertEquals( 1, accountID);
+			assertEquals( "user1", name1 );
+			
+			JsonObject account2 = jsonArray.getJsonObject(1);
+			int accountID2 = account2.getInteger("ID");
+			String userName2 = account2.getString("NAME");
+			assertEquals( 2, accountID2 );
+			assertEquals( "user2", userName2 );
 			
 			client.close();
 			async.complete();
