@@ -79,12 +79,6 @@ public class MoneyTransferVerticle extends AbstractVerticle {
         	LOGGER.info("HTTP server stopped!");
             stopFuture.complete();
         });
-        
-        vertx.close(h -> {
-            if (h.failed()) {
-            	LOGGER.error(h.cause().getLocalizedMessage());
-            }
-        });
     }
     
 	private Future<Void> startHttpServer(Router router) {
