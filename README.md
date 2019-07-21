@@ -1,6 +1,6 @@
 # Money Transfer REST API
 
-REST endpoint that allows internal money transfer between accounts.
+REST endpoint that allows money transfer between accounts.
 
 ### Package with
  Run: `moneytransfer> mvn package -DskipTests`
