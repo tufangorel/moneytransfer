@@ -44,6 +44,8 @@ money_transfer = Join table for sender, receiver accounts and transfer amount wi
 
 * Application can be started directly with the execution of main method inside the com.moneytransfer.AppMain class. <br/>
 
+
+## API OPERATIONS
 ### Query users
 
 Method : HTTP.GET <br/>
