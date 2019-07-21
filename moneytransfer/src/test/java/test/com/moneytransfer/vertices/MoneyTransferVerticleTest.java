@@ -14,6 +14,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,15 +40,29 @@ public class MoneyTransferVerticleTest {
 	@BeforeClass
 	public static void setUp(TestContext context) throws IOException {
 
+		LOGGER.info("-- Start MoneyTransferVerticleTest execution! -- ");
 		vertx = Vertx.vertx();
 		final DeploymentOptions options = new DeploymentOptions().setConfig(
 				new JsonObject().put("http.port", PORT));
 
 		// default config
-		MoneyTransferVerticle moneyTransferVerticle = new MoneyTransferVerticle();
-		vertx.deployVerticle(moneyTransferVerticle, options, context.asyncAssertSuccess());
+		String verticleID = MoneyTransferVerticle.class.getName();
+		vertx.deployVerticle( verticleID, options, context.asyncAssertSuccess());
 	}
-
+	
+	@AfterClass
+	public static void tearDown(TestContext context) throws IOException {
+		String verticleID = MoneyTransferVerticle.class.getName();
+		vertx.undeploy(verticleID);
+		vertx.close(context.asyncAssertSuccess());
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		LOGGER.info("-- End MoneyTransferVerticleTest execution! --");
+	}
+	
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetUserByUserID(TestContext context) throws Exception {
@@ -67,6 +82,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -98,6 +115,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -116,6 +135,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -134,6 +155,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -152,6 +175,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -170,6 +195,8 @@ public class MoneyTransferVerticleTest {
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
 	
 	@SuppressWarnings("deprecation")
@@ -224,31 +251,341 @@ public class MoneyTransferVerticleTest {
 		      })
 		      .write(json)
 		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_Sender_Account_ID_Required(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily(new MoneyTransfer( null, (long)2, amount, "EUR"));
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.FromAccountIDIsRequired, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_Receiver_Account_ID_Required(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily(new MoneyTransfer( (long)1, null, amount, "EUR"));
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.ToAccountIDIsRequired, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_Amount_IS_Required(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)2, null, "EUR") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.AmountIsRequired, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_CURRENCY_IS_Required(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)2, amount, null) );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.CurrencyIsRequired, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_SENDER_AND_RECEIVER_ACOUNT_IDS_MUST_BE_DIFFERENT(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)1, amount, "TRL") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.SenderAndReceiverAccountIDsMustBeDifferent, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_SENDER_ACCOUNT_ID_NOT_FOUND_IN_SYSTEM(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)11, (long)1, amount, "TRL") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.FromAccountIDNotFoundInSystem, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_RECEIVER_ACCOUNT_ID_NOT_FOUND_IN_SYSTEM(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(10.0);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)12, amount, "TRL") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.BAD_REQUEST.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.ToAccountIDNotFoundInSystem, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
 	}
 
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_AMOUNT_IS_LESS_THAN_OR_EQUAL_TO_ZERO(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(0);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)2, amount, "TRL") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.NOT_ACCEPTABLE.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.AmountIsLessThanOrEqualToZero, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Test
+	public void testTransfer_SENDER_ACCOUNT_BALANCE_IS_NOT_ENOUGH(TestContext context) throws Exception {
+		
+		HttpClient client = vertx.createHttpClient();
+		BigDecimal amount = BigDecimal.valueOf(2000);
+		final String json = Json.encodePrettily( new MoneyTransfer( (long)1, (long)2, amount, "TRL") );
+		final String length = Integer.toString(json.length());
+		Async async = context.async();
+		client.post( PORT, "localhost", "/api/transfer")
+		      .putHeader("content-type", "application/json")
+		      .putHeader("content-length", length)
+		      .handler(response -> {
+		    	  
+		    	assertEquals(response.statusCode(), HttpResponseStatus.NOT_ACCEPTABLE.code());
+		        assertTrue(response.headers().get("content-type").contains("application/json"));
+		        response.bodyHandler(body -> {
+		        	
+		        	LOGGER.info(body.toString());
+					JsonObject responseFromService = body.toJsonObject();
+					
+					String errorMessage = responseFromService.getString("errorMessage");
+					assertEquals( Constants.FromAccountBalanceIsNotEnough, errorMessage );
+					
+		          client.close();
+				  async.complete();
+		        });
+		      })
+		      .write(json)
+		      .end();
+		
+		async.awaitSuccess();
+	}
+	
 	@SuppressWarnings("deprecation")
 	@Test
 	public void testGetAccountsByUserId(TestContext context) throws Exception {
 		HttpClient client = vertx.createHttpClient();
 		Async async = context.async();
+		
 		client.getNow(PORT, "localhost", "/api/accounts/1", response -> response.bodyHandler(body -> {
 
 			JsonArray jsonArray = body.toJsonArray();
 			assertEquals( HttpResponseStatus.OK.code(), response.statusCode() );
+			assertTrue(response.headers().get("content-type").contains("application/json"));
 			assertNotNull(jsonArray);
-			assertTrue(jsonArray.size() == 1);
+			assertTrue(jsonArray.size() > 0);
 			
 			JsonObject account = jsonArray.getJsonObject(0);
 			int accountID = account.getInteger("ID");
 			int userID = account.getInteger("USERID");
-			double balance = account.getDouble("BALANCE");
 			
 			assertEquals( 1, accountID);
 			assertEquals( 1, userID );
-			assertEquals( 90.0, balance, 0.0);
 			
 			client.close();
 			async.complete();
 		}));
+		
+		async.awaitSuccess();
 	}
+	
 }
