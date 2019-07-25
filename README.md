@@ -1,6 +1,7 @@
 # Transfer REST API
 
-REST endpoint that allows money transfer between accounts.
+REST endpoint that allows money transfer between accounts. <br/>
+
 NOT: Code was only developed to test and understand how Vert.x works. Not suggested for any production or test environment. Just play and learn.
 
 ### Package with
