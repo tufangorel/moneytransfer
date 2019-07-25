@@ -2,7 +2,7 @@
 
 REST endpoint that allows money transfer between accounts. <br/>
 
-<b><span style="color:red">NOT :</span></b> Code was only developed to test and understand how Vert.x works. Not suggested for any production or test environment. Just play and learn.
+<b>NOT :</b> Project was only developed to test and understand how Vert.x works. Not suggested for any production or test environment. It is not a best practice project. Just play and learn.
 
 ### Package with
  Run: `moneytransfer> mvn package -DskipTests`
