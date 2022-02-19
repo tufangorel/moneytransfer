@@ -1,8 +1,6 @@
 # Transfer REST API
 
-REST endpoint that allows money transfer between accounts. <br/>
-
-<b>NOT :</b> Project was only developed to test and understand how Vert.x works. Not suggested for any production or test environment. It is not a best practice project. Just play and learn.
+REST API that allows money transfer between accounts by using Vert.x . <br/>
 
 ### Package with
  Run: `moneytransfer> mvn package -DskipTests`
