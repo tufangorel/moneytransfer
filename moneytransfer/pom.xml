@@ -3,18 +3,21 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com</groupId>
+	<groupId>com.company</groupId>
 	<artifactId>moneytransfer</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>moneytransfer</name>
 
 	<properties>
-	    <maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>
+		<java.version>11</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<vertx.version>3.9.4</vertx.version>
-		<main.verticle>com.moneytransfer.verticles.MoneyTransferVerticle</main.verticle>
+		<vertx.version>4.2.5</vertx.version>
+		<main.verticle>com.company.moneytransfer.verticles.MoneyTransferVerticle</main.verticle>
+		<skip.unit.tests>true</skip.unit.tests>
+		<jackson.version>2.13.1</jackson.version>
 	</properties>
 
 	<dependencies>
@@ -57,35 +60,65 @@
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.1</version>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-junit5</artifactId>
+			<version>${vertx.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-		  <groupId>ch.qos.logback</groupId>
-		  <artifactId>logback-classic</artifactId>
-		  <version>1.2.3</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-xml</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
-		<pluginManagement>
-	      <plugins>
-	        <plugin>
-	          <artifactId>maven-compiler-plugin</artifactId>
-	          <version>3.5.1</version>
-	          <configuration>
-	            <source>1.8</source>
-	            <target>1.8</target>
-	          </configuration>
-	        </plugin>
-	      </plugins>
-	    </pluginManagement>
     
 		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.10.0</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.0.0-M5</version>
+				<configuration>
+					<skipTests>${skip.unit.tests}</skipTests>
+					<forkMode>once</forkMode>
+					<excludes>
+						<exclude>**/*IntegrationTest</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -112,7 +145,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 		</plugins>
 	</build>
 
