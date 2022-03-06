@@ -15,9 +15,10 @@
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<vertx.version>4.2.5</vertx.version>
-		<main.verticle>com.company.moneytransfer.verticles.MoneyTransferVerticle</main.verticle>
-		<skip.unit.tests>true</skip.unit.tests>
 		<jackson.version>2.13.1</jackson.version>
+		<skip.unit.tests>true</skip.unit.tests>
+		<vertx.launcher>com.company.moneytransfer.AppMain</vertx.launcher>
+		<vertx.verticle>com.company.moneytransfer.verticles.MoneyTransferVerticle</vertx.verticle>
 	</properties>
 
 	<dependencies>
@@ -120,30 +121,21 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.3</version>
+				<groupId>io.fabric8</groupId>
+				<artifactId>vertx-maven-plugin</artifactId>
+				<version>1.0.13</version>
 				<executions>
 					<execution>
-						<phase>package</phase>
+						<id>vmp</id>
 						<goals>
-							<goal>shade</goal>
+							<goal>initialize</goal>
+							<goal>package</goal>
 						</goals>
-						<configuration>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<manifestEntries>
-										<Main-Class>io.vertx.core.Starter</Main-Class>
-										<Main-Verticle>${main.verticle}</Main-Verticle>
-									</manifestEntries>
-								</transformer>
-							</transformers>
-							<artifactSet />
-							<outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</outputFile>
-						</configuration>
 					</execution>
 				</executions>
+				<configuration>
+					<redeploy>true</redeploy>
+				</configuration>
 			</plugin>
 
 		</plugins>
