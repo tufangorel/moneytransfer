@@ -20,6 +20,16 @@ moneytransfer\target$ java -jar .\moneytransfer-0.0.1-SNAPSHOT.jar <br/>
 [vert.x-eventloop-thread-1] INFO  c.company.moneytransfer.util.DBUtil - Sample DB rows populated for user and account tables!
 </pre>
 
+NOT : If you receive "java.net.BindException" then find and kill the running process on port 9090 of WIN10 OS. <br/>
+$ Failed to deploy : java.net.BindException: Address already in use: bind
+<pre>
+$ netstat -nao | find "9090"
+TCP    0.0.0.0:9090           0.0.0.0:0              LISTENING       9292
+TCP    [::]:9090              [::]:0                 LISTENING       9292
+
+$ taskkill /PID 9292 /F
+SUCCESS: The process with PID 9292 has been terminated.
+</pre>
 ### Tech Stack
 <pre>
 Java 11
