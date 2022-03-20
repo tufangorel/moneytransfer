@@ -74,11 +74,20 @@ URL : http://localhost:9090/api/users <br/>
 
 Input Test Data : No input just fire the request. <br/>
 
-Request : 
+Request Body : 
 <pre>
 {
 }
-</pre><br/>
+</pre>
+
+Curl Request : <br/>
+<pre>
+curl --location --request GET 'http://localhost:9090/api/users' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+</pre>
+
 Response : 
 
 HTTP response code 200 <br/>
@@ -103,12 +112,19 @@ URL : http://localhost:9090/api/users/1 <br/>
 
 Input Test Data : No input just fire the request. "id" field contains user information for the specific user. <br/>
 
-Request : 
+Request Body :
 <pre>
 {
 }
-</pre><br/>
-Response : 
+</pre>
+Curl Request : <br/>
+<pre>
+curl --location --request GET 'http://localhost:9090/api/users/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+</pre>
+Response :
 
 HTTP response code 200 <br/>
 <pre>
@@ -116,7 +132,7 @@ HTTP response code 200 <br/>
     "ID": 1,
     "name": "user1"
 }
-</pre><br/>
+</pre>
 
 ### Query accounts of specific user by user id
 
@@ -126,11 +142,20 @@ URL : http://localhost:9090/api/accounts/1 <br/>
 
 Input Test Data : No input just fire the request. "userid" field contains user information for the specific user. <br/>
 
-Request : 
+Request Body :
 <pre>
 {
 }
-</pre><br/>
+</pre>
+
+Curl Request : <br/>
+<pre>
+curl --location --request GET 'http://localhost:9090/api/accounts/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+</pre>
+
 Response : 
 
 HTTP response code 200 <br/>
@@ -142,7 +167,7 @@ HTTP response code 200 <br/>
         "BALANCE": 100
     }
 ]
-</pre><br/>
+</pre>
 
 ### Accomplish transfer between accounts
 
@@ -151,7 +176,7 @@ URL : http://localhost:9090/api/transfer <br/>
 
 Input Test Data : Provide required fields for transfer operation. <br/>
 
-Request : 
+Request Body :
 <pre>
 {
 	"fromAccountId": 1,
@@ -159,7 +184,20 @@ Request :
 	"amount": 100,
 	"currency": "GBP"
 }
-</pre><br/>
+</pre>
+
+Curl Request : <br/>
+<pre>
+curl --location --request POST 'http://localhost:9090/api/transfer' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+	"fromAccountId": 1,
+	"toAccountId": 2,
+	"amount": 100,
+	"currency": "GBP"
+}'
+</pre>
+
 Response : 
 
 HTTP response code 200 <br/>
@@ -170,16 +208,16 @@ HTTP response code 200 <br/>
         "status": "ok",
         "id": 1,
         "userId": 1,
-        "balance": 0
+        "balance": 0.00
     },
     "ReceiverAccountDetails": {
         "status": "ok",
         "id": 2,
         "userId": 2,
-        "balance": 300
+        "balance": 300.00
     }
 }
-</pre><br/>
+</pre>
 
 ### Query transfers made from given sender account id
 
@@ -189,11 +227,20 @@ URL : http://localhost:9090/api/transfer/1 <br/>
 
 Input Test Data : No input just fire the request. "accountid" field contains account information for the specific account. <br/>
 
-Request : 
+Request Body :
 <pre>
 {
 }
-</pre><br/>
+</pre>
+
+Curl Request : <br/>
+<pre>
+curl --location --request GET 'http://localhost:9090/api/transfer/1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+}'
+</pre>
+
 Response : 
 
 HTTP response code 200 <br/>
@@ -203,9 +250,9 @@ HTTP response code 200 <br/>
         "ID": 1,
         "FROMACCOUNTID": 1,
         "TOACCOUNTID": 2,
-        "AMOUNT": 100,
+        "AMOUNT": 100.00,
         "CURRENCY": "GBP",
-        "TRANSACTION_DATE": "2019-07-21T17:35:09.812Z"
+        "TRANSACTION_DATE": "2022-03-20T14:24:22.749"
     }
 ]
-</pre><br/>
+</pre>
